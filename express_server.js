@@ -10,13 +10,33 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
+app.get("/", (req, res) => {
+  res.send("Hello!");
+});
+
+// comes before all the routes 
+//The body-parser library will convert the request body from a Buffer into string that we can read. 
+//It will then add the data to the req(request) object under the key body.
+
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
+app.post("/urls", (req, res) => {
+  if (req.body) {  
+  console.log(req.body);  // Log the POST request body to the console
+  res.send("Ok");         // Respond with 'Ok' (we will replace this)
+}
+});
+// urlDatabase.generateRandomString
+
 app.get("/urls", (req, res) => {
   let templateVars = { urls: urlDatabase };
   res.render("urls_index", templateVars);
 });
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -27,12 +47,20 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL
   let templateVars = { shortURL: shortURL, longURL:urlDatabase[shortURL] };
   res.render("urls_show", templateVars);
+});
+
+const generateRandomString = () => {
+  let randomString = '';
+  const characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for ( let i = 0; i <= 6 ; i++){
+    randomString += characters.charAt(Math.floor(Math.random() * charactersLength))
+  }};
+
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
 });
