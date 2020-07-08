@@ -1,7 +1,16 @@
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 
 const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
+
+
+// COOKIES 
+app.use(cookieParser());
+
+// Body-Parser
+app.use(bodyParser.urlencoded({extended: true}));
 
 app.set("view engine", "ejs");
 
@@ -14,16 +23,28 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// comes before all the routes
-//The body-parser library will convert the request body from a Buffer into string that we can read.
-//It will then add the data to the req(request) object under the key body.
+// LOGIN
+// app.get("/login", (req,res) => {
+//   res.redirect("/urls");
+// });
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+app.post("/login", (req,res) => {
+  const username = req.body.username;
+  res.cookie("username", username);
+  res.redirect('/urls');
+});
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { 
+    username: req.cookies.username,
+    urls: urlDatabase 
+  };
   res.render("urls_index", templateVars);
+});
+
+app.post("/logout", (req,res) => {
+  res.clearCookie("username",{path:"/"});
+  res.redirect('/urls');
 });
 
 app.post("/urls", (req, res) => {
@@ -41,14 +62,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 // EDIT
+app.get("/urls/:shortURL/edit", (req, res) => {
+  res.redirect(`/urls/${req.params.shortURL}`);
+});
+
 app.post("/urls/:shortURL/edit", (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect("/urls");
 });
 
-app.get("/urls/:shortURL/edit", (req, res) => {
-  res.redirect(`/urls/${req.params.shortURL}`);
-});
 
 //NEW
 app.get("/urls/new", (req, res) => {
