@@ -83,6 +83,8 @@ const generateRandomString = () => {
   return randomString;
 };
 
+/////// LAST /////
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
