@@ -34,23 +34,23 @@ app.post("/urls", (req, res) => {
   }
 });
 
+// DELETE
 app.post("/urls/:shortURL/delete", (req, res) => {
 delete urlDatabase[req.params.shortURL]
   res.redirect("/urls")
 });
 
+// EDIT 
 app.post("/urls/:shortURL/edit", (req, res) => {
   urlDatabase[req.params.shortURL] = req.body.longURL
     res.redirect("/urls")
   });
 
-
-
 app.get("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`)
   });
 
-
+//NEW
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
