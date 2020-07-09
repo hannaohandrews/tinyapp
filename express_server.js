@@ -28,34 +28,24 @@ const users = {
   }
 }
 
-
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-
-// // //LOGIN (NEW)
-// // app.post("/login", (req,res) => {
-// // const username = req.body.username;
-// // for (let i in users) {
-// //   if (username === users[i][id]) {
-// //     let user = users[i]
-// //   } 
-// // }
-
-// })
-
+// LOGIN (NEW)
+app.get("/login",(req,res) => {
+res.render('login_index');
+})
 
 // LOGIN (OLD)
 app.post("/login", (req,res) => {
-  const username = req.body.username;
+  // const username = req.body.username;
   // res.cookie("username", username);
-  res.redirect('/urls');
+  res.render('login_index')
 });
 
 // LOGIN cookie  (OLD)
 app.get("/urls", (req, res) => {
-
   let templateVars = { 
     user: users[req.cookies.user_id],
     urls: urlDatabase 
@@ -94,7 +84,6 @@ app.post("/urls/:shortURL/edit", (req, res) => {
   res.redirect("/urls");
 });
 
-
 //NEW
 app.get("/urls/new", (req, res) => {
   let templateVars = {user: users[req.cookies.user_id]}
@@ -121,14 +110,14 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-
 // user registration//
 app.get('/register', (req,res) => {
   res.render('register_index')
 })
 
-// EMAIL & PASSWORD
+// REgiSTER EMAIL & PASSWORD
 app.post('/register', (req,res) => {
+
   let user = {
     id : generateRandomString(),
     email : req.body.email,
@@ -139,8 +128,7 @@ app.post('/register', (req,res) => {
     for (const user in users) {
       if (users[user].email === email) {
         return user;
-      }
-    }
+      }}
   };
 
   if (user.email === '' || user.password === '' || EmailExisting (user.email)) {
@@ -152,6 +140,7 @@ app.post('/register', (req,res) => {
   }
 })
 
+// RANDOM NUM
 const generateRandomString = () => {
   let randomString = '';
   const characters = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
