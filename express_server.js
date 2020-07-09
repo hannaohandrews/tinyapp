@@ -3,16 +3,16 @@ const bodyParser = require("body-parser");
 
 const express = require("express");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080; 
 
 
 // COOKIES
 app.use(cookieParser());
 
-// Body-Parser
+// BODY-PARSER
 app.use(bodyParser.urlencoded({extended: true}));
 
-// go to views folder
+// GO TO VIEWS FOLDER
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -34,7 +34,6 @@ app.get("/", (req, res) => {
 
 
 // NEW LOGIN
-
 app.post("/login", (req,res) => {
   for (const user in users) {
     if (req.body.email === users[user].email) {
@@ -73,7 +72,7 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars);
 });
 
-// short url random
+// SHORT URL RANDOM
 app.post("/urls", (req, res) => {
   if (req.body) {
     let short = generateRandomString();
@@ -108,29 +107,31 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
+//HELLO
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// short url
+// URLS/SHORT URL
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let templateVars = { shortURL: shortURL, longURL:urlDatabase[shortURL], user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
+// U/SHORTURL
 app.get("/u/:shortURL", (req, res) => {
   let longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
 
-// user registration
+// USER REGISTRATION GET
 app.get('/register', (req,res) => {
   let templateVars = { user: users[req.cookies.user_id] };
   res.render('register_index',templateVars);
 });
 
-// REGISTER
+// USER REGISTRATION POST
 app.post('/register', (req,res) => {
 
   let user = {
@@ -166,7 +167,7 @@ const generateRandomString = () => {
   return randomString;
 };
 
-/////// LAST /////
+// LIST LAST//
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
