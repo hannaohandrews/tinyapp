@@ -37,8 +37,39 @@ app.get("/login",(req,res) => {
 res.render('login_index');
 })
 
+
 // LOGIN (OLD)
 app.post("/login", (req,res) => {
+
+  let user = {
+    email : req.body.email,
+    password : req.body.password
+  } 
+
+  console.log(user)
+
+  // const EmailExisting = function(email) {
+  //       for (const user in users) {
+  //         if (users[user].email === email) {
+  //           return user;
+  //         }}
+  //     };
+
+  // const PasswordExisting = function(password) {
+  //   for (const user in users) {
+  //     if (users[user].password === password) {
+  //       return user;
+  //     }}
+  // };
+
+  //   if ( EmailExisting (user.email)) {
+  //   res.send("403")
+  // } else {
+  //   res.cookie('user_id',user.id);
+  //   users[user.id] = user;
+  //   res.redirect('/urls');
+  // }
+
   // const username = req.body.username;
   // res.cookie("username", username);
   res.render('login_index')
