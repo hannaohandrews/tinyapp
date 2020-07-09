@@ -4,19 +4,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+  <title>TinyApp</title>
+</head>
+<body>
+  <%- include('partials/_header') %> 
+  <main style="margin: 1em;"></main>
+
   <!-- Bootstrap CSS -->
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
   <title>URL - TinyApp Example</title>
 </head>
-
-
   <body>
       <div class="card text-center">
           <div class="card-header"></div>
           <div class="card-body">
     <main style="margin: 1em;">
       <h2>REGISTRTION FORM</h2>
-
     
       <form class="form-inline" action="/register" method="POST">
         <div class="form-group mb-2">
@@ -29,8 +34,6 @@
          </div>
       </form>
      
-
-
 
 
   <!-- Bootstrap JS -->

@@ -32,62 +32,45 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-// LOGIN (NEW)
-app.get("/login",(req,res) => {
-res.render('login_index');
-})
 
+// NEW LOGIN
 
-// LOGIN (OLD)
 app.post("/login", (req,res) => {
+  for (const user in users) {
+    if (req.body.email === users[user].email) {
+      if (req.body.password === users[user].password){
+        res.cookie('user_id',user);
+        res.redirect('/urls');
+        return;
+      }
+    }
+  }
+  res.send('ERROR 403');
 
-  let user = {
-    email : req.body.email,
-    password : req.body.password
-  } 
-
-  console.log(user)
-
-  // const EmailExisting = function(email) {
-  //       for (const user in users) {
-  //         if (users[user].email === email) {
-  //           return user;
-  //         }}
-  //     };
-
-  // const PasswordExisting = function(password) {
-  //   for (const user in users) {
-  //     if (users[user].password === password) {
-  //       return user;
-  //     }}
-  // };
-
-  //   if ( EmailExisting (user.email)) {
-  //   res.send("403")
-  // } else {
-  //   res.cookie('user_id',user.id);
-  //   users[user.id] = user;
-  //   res.redirect('/urls');
-  // }
-
-  // const username = req.body.username;
-  // res.cookie("username", username);
-  res.render('login_index')
 });
 
-// LOGIN cookie  (OLD)
-app.get("/urls", (req, res) => {
+// LOGIN cookie  (new)
+app.get("/login", (req, res) => {
   let templateVars = { 
     user: users[req.cookies.user_id],
-    urls: urlDatabase 
+    users: users
   };
-  res.render("urls_index", templateVars);
+  res.render("login_index", templateVars);
 });
 
 // LOGOUT
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id",{path:"/"});
   res.redirect('/urls');
+});
+
+// URLS PAGE
+app.get("/urls", (req, res) => {
+  let templateVars = { 
+    user: users[req.cookies.user_id],
+    urls: urlDatabase 
+  };
+  res.render("urls_index", templateVars);
 });
 
 // short url random
@@ -141,12 +124,13 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
-// user registration//
+// user registration
 app.get('/register', (req,res) => {
-  res.render('register_index')
+  let templateVars = { user: users[req.cookies.user_id] }
+  res.render('register_index',templateVars)
 })
 
-// REgiSTER EMAIL & PASSWORD
+// REGISTER
 app.post('/register', (req,res) => {
 
   let user = {
