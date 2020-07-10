@@ -15,12 +15,14 @@ app.use(bodyParser.urlencoded({extended: true}));
 // GO TO VIEWS FOLDER
 app.set("view engine", "ejs");
 
-// //OLD URL
-// const urlDatabase = {
-//   "b2xVn2": "http://www.lighthouselabs.ca",
-//   "9sm5xK": "http://www.google.com",
-// };
-// NEW DATABASE
+const EmailExisting = function(email) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+};
+
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
@@ -57,7 +59,7 @@ app.get("/", (req, res) => {
 app.post("/login", (req,res) => {
   for (const user in users) {
     if (req.body.email === users[user].email) {
-      if (req.body.password === users[user].password) {
+      if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
         res.cookie('user_id',user);
         res.redirect('/urls');
         return;
@@ -152,7 +154,7 @@ app.get("/hello", (req, res) => {
 // URLS/SHORT URL
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let templateVars = { shortURL: shortURL, longURL:urlDatabase[shortURL].longURL , user: users[req.cookies.user_id] };
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -168,30 +170,26 @@ app.get('/register', (req,res) => {
   res.render('register_index',templateVars);
 });
 
+const bcrypt = require('bcrypt');
+
 // USER REGISTRATION POST
 app.post('/register', (req,res) => {
-
+  const hashedPassword = bcrypt.hashSync(req.body["password"], 10);
   let user = {
     id : generateRandomString(),
     email : req.body.email,
-    password : req.body.password
+    password : hashedPassword
   };
-
-  const EmailExisting = function(email) {
-    for (const user in users) {
-      if (users[user].email === email) {
-        return user;
-      }
-    }
-  };
-
+  
   if (user.email === '' || user.password === '' || EmailExisting(user.email)) {
     res.send("400 Bad Request");
+    // res.redirect("/register");
   } else {
     res.cookie('user_id',user.id);
     users[user.id] = user;
     res.redirect('/urls');
   }
+
 });
 
 // RANDOM NUM
