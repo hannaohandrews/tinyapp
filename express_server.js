@@ -1,13 +1,18 @@
-const cookieParser = require("cookie-parser");
+// const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
-
 const express = require("express");
 const app = express();
 const PORT = 8080; 
 
+// Cookie Session
+const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['Hannah-Banana-Fofana-Lolana', 'whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
+}))
 
-// COOKIES
-app.use(cookieParser());
+// // COOKIES
+// app.use(cookieParser());
 
 // BODY-PARSER
 app.use(bodyParser.urlencoded({extended: true}));
@@ -22,7 +27,6 @@ const EmailExisting = function(email) {
     }
   }
 };
-
 
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
