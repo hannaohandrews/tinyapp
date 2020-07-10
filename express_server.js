@@ -80,7 +80,7 @@ app.get("/login", (req, res) => {
 // LOGOUT
 app.post("/logout", (req,res) => {
   res.clearCookie("user_id",{path:"/"});
-  res.redirect('/urls');
+  res.redirect('/login');
 });
 
 // URLS PAGE
@@ -113,7 +113,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 });
 
-// EDIT
+// EDIT ->> error 
 app.get("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
@@ -148,6 +148,7 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
+// error -> 
 // URLS/SHORT URL
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
