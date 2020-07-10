@@ -1,6 +1,4 @@
-// change res.cookie => req.session 
-// change req.cookie => req.session
-// const cookieParser = require("cookie-parser");
+
 const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
@@ -12,9 +10,6 @@ app.use(cookieSession({
   name: 'session',
   keys: ['Hannah-Banana-Fofana-Lolana','whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
 }))
-
-// // KOOKIES
-// app.use(cookieParser());
 
 // BODY-PARSER
 app.use(bodyParser.urlencoded({extended: true}));
@@ -34,7 +29,6 @@ const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
 };
-
 
 const users = {
   "userRandomID": {
@@ -57,7 +51,20 @@ return results
 }
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  if (req.body.id === users[req.session.user_id]) {
+    res.redirect('/urls');
+    }else {
+      res.redirect('/login');
+    }
+
+});
+
+app.get("/login", (req, res) => {
+  let templateVars = {
+    user: users[req.session.user_id],
+    users: users
+  };
+  res.render("login_index", templateVars);
 });
 
 
@@ -67,13 +74,18 @@ app.post("/login", (req,res) => {
     if (req.body.email === users[user].email) {
       if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
         // res.cookie('user_id',user);
-        req.session('user_id',user);
+        req.session.user_id = user;
         res.redirect('/urls');
         return;
       }
     }
   }
-  res.send('ERROR 403');
+
+  let templateVars = {
+    user: users[req.session.user_id],
+    users: users
+  };
+  res.render("error",templateVars);
 
 });
 
