@@ -1,3 +1,5 @@
+// change res.cookie => req.session 
+// change req.cookie => req.session
 // const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const express = require("express");
@@ -8,10 +10,10 @@ const PORT = 8080;
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
-  keys: ['Hannah-Banana-Fofana-Lolana', 'whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
+  keys: ['Hannah-Banana-Fofana-Lolana','whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
 }))
 
-// // COOKIES
+// // KOOKIES
 // app.use(cookieParser());
 
 // BODY-PARSER
@@ -64,7 +66,8 @@ app.post("/login", (req,res) => {
   for (const user in users) {
     if (req.body.email === users[user].email) {
       if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
-        res.cookie('user_id',user);
+        // res.cookie('user_id',user);
+        req.session('user_id',user);
         res.redirect('/urls');
         return;
       }
@@ -74,10 +77,10 @@ app.post("/login", (req,res) => {
 
 });
 
-// LOGIN cookie  (new)
+// LOGIN Kookie  (new)
 app.get("/login", (req, res) => {
   let templateVars = {
-    user: users[req.cookies.user_id],
+    user: users[req.session.user_id],
     users: users
   };
   res.render("login_index", templateVars);
@@ -85,15 +88,15 @@ app.get("/login", (req, res) => {
 
 // LOGOUT
 app.post("/logout", (req,res) => {
-  res.clearCookie("user_id",{path:"/"});
+  req.session.user_id = null;
   res.redirect('/login');
 });
 
 // URLS PAGE
 app.get("/urls", (req, res) => {
   let templateVars = { 
-    user: users[req.cookies.user_id],
-    urls: urlsForUserID(req.cookies.user_id)
+    user: users[req.session.user_id],
+    urls: urlsForUserID(req.session.user_id)
   };
   res.render("urls_index", templateVars);
 });
@@ -101,16 +104,16 @@ app.get("/urls", (req, res) => {
 // SHORT URL RANDOM
 app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
-  if (req.cookies.user_id) {
+  if (req.session.user_id) {
     let short = generateRandomString();
-    urlDatabase[short] = { longURL: longURL, userID: req.cookies.user_id  };
+    urlDatabase[short] = { longURL: longURL, userID: req.session.user_id  };
     res.redirect(`/urls/${short}`);
   }
 });
 
 // DELETE
 app.post("/urls/:shortURL/delete", (req, res) => {
-  if (req.cookies.user_id === urlDatabase[req.params.shortURL].userID) {
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -125,7 +128,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  if (req.cookies.user_id === urlDatabase[req.params.shortURL].userID) {
+  if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
       urlDatabase[req.params.shortURL].longURL  = req.body.longURL;
   res.redirect("/urls");
   } else {
@@ -136,9 +139,9 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 //NEW//
 app.get("/urls/new",(req, res) => {
   let templateVars = { 
-    user: users[req.cookies.user_id]
+    user: users[req.session.user_id]
   };
-  if (req.cookies.user_id in users){
+  if (req.session.user_id in users){
     res.render("urls_new",templateVars);
   } else {
     res.redirect('/urls');
@@ -158,7 +161,7 @@ app.get("/hello", (req, res) => {
 // URLS/SHORT URL
 app.get("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.cookies.user_id] };
+  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.session.user_id] };
   res.render("urls_show", templateVars);
 });
 
@@ -170,7 +173,7 @@ app.get("/u/:shortURL", (req, res) => {
 
 // USER REGISTRATION GET
 app.get('/register', (req,res) => {
-  let templateVars = { user: users[req.cookies.user_id] };
+  let templateVars = { user: users[req.session.user_id] };
   res.render('register_index',templateVars);
 });
 
@@ -189,7 +192,7 @@ app.post('/register', (req,res) => {
     res.send("400 Bad Request");
     // res.redirect("/register");
   } else {
-    res.cookie('user_id',user.id);
+    req.session.user_id = user.id;
     users[user.id] = user;
     res.redirect('/urls');
   }
