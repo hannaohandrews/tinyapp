@@ -3,9 +3,21 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
 const PORT = 8080; 
+const bcrypt = require('bcrypt');
 
-// Cookie Session
 const cookieSession = require('cookie-session');
+
+// const { getUserByEmail } = require('./helpers.js');
+
+const getUserByEmail = function(email,users) {
+  for (const user in users) {
+    if (users[user].email === email) {
+      return user;
+    }
+  }
+  return null;
+};
+
 app.use(cookieSession({
   name: 'session',
   keys: ['Hannah-Banana-Fofana-Lolana','whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
@@ -17,14 +29,6 @@ app.use(bodyParser.urlencoded({extended: true}));
 // GO TO VIEWS FOLDER
 app.set("view engine", "ejs");
 
-const EmailExisting = function(email) {
-  for (const user in users) {
-    if (users[user].email === email) {
-      return user;
-    }
-  }
-};
-
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "userRandomID" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
@@ -34,7 +38,12 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync('123', 10)
+  }, 
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: bcrypt.hashSync('123', 10)
   }
 };
 
@@ -73,23 +82,21 @@ app.post("/login", (req,res) => {
   for (const user in users) {
     if (req.body.email === users[user].email) {
       if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
-        // res.cookie('user_id',user);
         req.session.user_id = user;
         res.redirect('/urls');
-        return;
       }
-    }
+    } else {
+    let templateVars = {
+      user: users[req.session.user_id],
+      users: users
+    };
+    res.status(400).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>")
+  
   }
-
-  let templateVars = {
-    user: users[req.session.user_id],
-    users: users
-  };
-  res.render("error",templateVars);
-
+  }
 });
 
-// LOGIN Kookie  (new)
+// LOGIN 
 app.get("/login", (req, res) => {
   let templateVars = {
     user: users[req.session.user_id],
@@ -100,17 +107,22 @@ app.get("/login", (req, res) => {
 
 // LOGOUT
 app.post("/logout", (req,res) => {
-  req.session.user_id = null;
+  req.session = null;
   res.redirect('/login');
 });
 
 // URLS PAGE
 app.get("/urls", (req, res) => {
-  let templateVars = { 
-    user: users[req.session.user_id],
-    urls: urlsForUserID(req.session.user_id)
-  };
-  res.render("urls_index", templateVars);
+  if (req.session.user_id){
+    let templateVars = { 
+      user: users[req.session.user_id],
+      urls: urlsForUserID(req.session.user_id)
+    }
+    res.render("urls_index", templateVars);
+  } else {
+    res.status(400).send("Not logged-in dummy.. <a href='/login'>Login Here</a>")
+  }
+  
 });
 
 // SHORT URL RANDOM
@@ -120,6 +132,12 @@ app.post("/urls", (req, res) => {
     let short = generateRandomString();
     urlDatabase[short] = { longURL: longURL, userID: req.session.user_id  };
     res.redirect(`/urls/${short}`);
+  } else {
+    let templateVars = {
+      user: users[req.session.user_id],
+      users: users
+    };
+    res.render("error",templateVars);
   }
 });
 
@@ -134,7 +152,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 });
 
-// EDIT ->> error 
+// EDIT 
 app.get("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
@@ -144,7 +162,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
       urlDatabase[req.params.shortURL].longURL  = req.body.longURL;
   res.redirect("/urls");
   } else {
-    res.status(400).send("Nice try.. but not yours... <a href='/urls'>Click Here</a>")
+    res.status(400).send("It's not nice to steal...<a href='/urls'>Click Here</a>")
   }
 });
 
@@ -169,12 +187,16 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// error -> 
-// URLS/SHORT URL
+// SHORTURL 
 app.get("/urls/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.session.user_id] };
-  res.render("urls_show", templateVars);
+  if (req.session.user_id) {
+    let shortURL = req.params.shortURL;
+    let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.session.user_id] };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(400).send("Not logged in dummy.. <a href='/login'>Login Here</a>")
+  }
+ 
 });
 
 // U/SHORTURL
@@ -189,22 +211,22 @@ app.get('/register', (req,res) => {
   res.render('register_index',templateVars);
 });
 
-const bcrypt = require('bcrypt');
 
 // USER REGISTRATION POST
 app.post('/register', (req,res) => {
   const hashedPassword = bcrypt.hashSync(req.body["password"], 10);
+
   let user = {
     id : generateRandomString(),
     email : req.body.email,
     password : hashedPassword
   };
   
-  if (user.email === '' || user.password === '' || EmailExisting(user.email)) {
-    res.send("400 Bad Request");
-    // res.redirect("/register");
+  if (user.email === '' || user.password === '' || getUserByEmail(user.email)) {
+    res.status(400).send("Not Registered dummy...<a href='/register'> Register Here</a>")
+
   } else {
-    req.session.user_id = user.id;
+    req.session.user_id = user.ids;
     users[user.id] = user;
     res.redirect('/urls');
   }
