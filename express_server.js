@@ -2,7 +2,7 @@
 const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
-const PORT = 8080; 
+const PORT = 8080;
 const bcrypt = require('bcrypt');
 
 const cookieSession = require('cookie-session');
@@ -15,13 +15,13 @@ const getUserByEmail = function(email,users) {
       return user;
     }
   }
-  return null;
+  // return null;
 };
 
 app.use(cookieSession({
   name: 'session',
   keys: ['Hannah-Banana-Fofana-Lolana','whyyyyyyyyyyyAreeeeeeYouuuuuuuuuuHeeerrreeee']
-}))
+}));
 
 // BODY-PARSER
 app.use(bodyParser.urlencoded({extended: true}));
@@ -39,7 +39,7 @@ const users = {
     id: "userRandomID",
     email: "user@example.com",
     password: bcrypt.hashSync('123', 10)
-  }, 
+  },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
@@ -48,23 +48,23 @@ const users = {
 };
 
 const urlsForUserID = (id) => {
-  const results = {}
+  const results = {};
  
-for (let shortURL in urlDatabase) {
-  let userId = urlDatabase[shortURL].userID
-  if (id === userId) {
-    results[shortURL] = urlDatabase[shortURL]
+  for (let shortURL in urlDatabase) {
+    let userId = urlDatabase[shortURL].userID;
+    if (id === userId) {
+      results[shortURL] = urlDatabase[shortURL];
+    }
   }
-} 
-return results
-}
+  return results;
+};
 
 app.get("/", (req, res) => {
   if (req.body.id === users[req.session.user_id]) {
     res.redirect('/urls');
-    }else {
-      res.redirect('/login');
-    }
+  } else {
+    res.redirect('/login');
+  }
 
 });
 
@@ -87,16 +87,15 @@ app.post("/login", (req,res) => {
       }
     } else {
     let templateVars = {
-      user: users[req.session.user_id],
-      users: users
-    };
-    res.status(400).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>")
-  
-  }
+        user: users[req.session.user_id],
+        users: users
+      };
+      res.status(400).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>");
+    }
   }
 });
 
-// LOGIN 
+// LOGIN
 app.get("/login", (req, res) => {
   let templateVars = {
     user: users[req.session.user_id],
@@ -113,14 +112,14 @@ app.post("/logout", (req,res) => {
 
 // URLS PAGE
 app.get("/urls", (req, res) => {
-  if (req.session.user_id){
-    let templateVars = { 
+  if (req.session.user_id) {
+    let templateVars = {
       user: users[req.session.user_id],
       urls: urlsForUserID(req.session.user_id)
-    }
+    };
     res.render("urls_index", templateVars);
   } else {
-    res.status(400).send("Not logged-in dummy.. <a href='/login'>Login Here</a>")
+    res.status(400).send("Not logged-in dummy.. <a href='/login'>Login Here</a>");
   }
   
 });
@@ -130,7 +129,7 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
   if (req.session.user_id) {
     let short = generateRandomString();
-    urlDatabase[short] = { longURL: longURL, userID: req.session.user_id  };
+    urlDatabase[short] = { longURL: longURL, userID: req.session.user_id };
     res.redirect(`/urls/${short}`);
   } else {
     let templateVars = {
@@ -147,31 +146,31 @@ app.post("/urls/:shortURL/delete", (req, res) => {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
-    res.status(400).send("Nice try.. but not yours... <a href='/urls'>Click Here</a>")
+    res.status(400).send("Nice try.. but not yours... <a href='/urls'>Click Here</a>");
   }
 
 });
 
-// EDIT 
+// EDIT
 app.get("/urls/:shortURL/edit", (req, res) => {
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
   if (req.session.user_id === urlDatabase[req.params.shortURL].userID) {
-      urlDatabase[req.params.shortURL].longURL  = req.body.longURL;
-  res.redirect("/urls");
+    urlDatabase[req.params.shortURL].longURL  = req.body.longURL;
+    res.redirect("/urls");
   } else {
-    res.status(400).send("It's not nice to steal...<a href='/urls'>Click Here</a>")
+    res.status(400).send("It's not nice to steal...<a href='/urls'>Click Here</a>");
   }
 });
 
 //NEW//
 app.get("/urls/new",(req, res) => {
-  let templateVars = { 
+  let templateVars = {
     user: users[req.session.user_id]
   };
-  if (req.session.user_id in users){
+  if (req.session.user_id in users) {
     res.render("urls_new",templateVars);
   } else {
     res.redirect('/urls');
@@ -187,14 +186,14 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// SHORTURL 
+// SHORTURL
 app.get("/urls/:shortURL", (req, res) => {
   if (req.session.user_id) {
     let shortURL = req.params.shortURL;
     let templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL , user: users[req.session.user_id] };
     res.render("urls_show", templateVars);
   } else {
-    res.status(400).send("Not logged in dummy.. <a href='/login'>Login Here</a>")
+    res.status(400).send("Not logged in dummy.. <a href='/login'>Login Here</a>");
   }
  
 });
@@ -219,15 +218,15 @@ app.post('/register', (req,res) => {
   let user = {
     id : generateRandomString(),
     email : req.body.email,
-    password : hashedPassword
+    password : req.body["password"]
   };
-  
+
   if (user.email === '' || user.password === '' || getUserByEmail(user.email)) {
-    res.status(400).send("Not Registered dummy...<a href='/register'> Register Here</a>")
+    res.status(400).send("Not Registered dummy...<a href='/register'> Register Here</a>");
 
   } else {
-    req.session.user_id = user.ids;
-    users[user.id] = user;
+    req.session.user_id = user.id;
+    users[user.id] = { id: users[user.id], email: user.email, password: hashedPassword };
     res.redirect('/urls');
   }
 
