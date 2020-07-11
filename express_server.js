@@ -4,10 +4,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 const bcrypt = require('bcrypt');
-
 const cookieSession = require('cookie-session');
 
-// const { getUserByEmail } = require('./helpers.js');
+//const { getUserByEmail } = require('./helpers.js');
 
 const getUserByEmail = function(email,users) {
   for (const user in users) {
@@ -15,7 +14,6 @@ const getUserByEmail = function(email,users) {
       return user;
     }
   }
-  // return null;
 };
 
 app.use(cookieSession({
@@ -59,6 +57,7 @@ const urlsForUserID = (id) => {
   return results;
 };
 
+
 app.get("/", (req, res) => {
   if (req.body.id === users[req.session.user_id]) {
     res.redirect('/urls');
@@ -67,7 +66,7 @@ app.get("/", (req, res) => {
   }
 
 });
-
+// NEW LOGIN
 app.get("/login", (req, res) => {
   let templateVars = {
     user: users[req.session.user_id],
@@ -84,13 +83,11 @@ app.post("/login", (req,res) => {
       if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
         req.session.user_id = user;
         res.redirect('/urls');
+      } else {
+        res.status(401).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>");
       }
     } else {
-    let templateVars = {
-        user: users[req.session.user_id],
-        users: users
-      };
-      res.status(400).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>");
+      res.redirect(401,'/register');
     }
   }
 });
@@ -210,7 +207,6 @@ app.get('/register', (req,res) => {
   res.render('register_index',templateVars);
 });
 
-
 // USER REGISTRATION POST
 app.post('/register', (req,res) => {
   const hashedPassword = bcrypt.hashSync(req.body["password"], 10);
@@ -229,7 +225,6 @@ app.post('/register', (req,res) => {
     users[user.id] = { id: users[user.id], email: user.email, password: hashedPassword };
     res.redirect('/urls');
   }
-
 });
 
 // RANDOM NUM
