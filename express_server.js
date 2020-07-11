@@ -116,7 +116,7 @@ app.get("/urls", (req, res) => {
     };
     res.render("urls_index", templateVars);
   } else {
-    res.status(400).send("Not logged-in dummy.. <a href='/login'>Login Here</a>");
+    res.status(400).send("Not logged in yet! <a href='/login'>Login Here</a> or <a href='/register'>Register</a>");
   }
   
 });
