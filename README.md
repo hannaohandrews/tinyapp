@@ -4,12 +4,12 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
+["urls_not_logged_in"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls(not_logged_in).png?raw=true)
+["urls_logged_in"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls(logged-in).png?raw=true)
+["Register"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/register.png?raw=true)
 ["Login"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/login.png?raw=true)
-!["Register"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/register.png?raw=true)
-!["urls/new"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls:new.png?raw=true)
-!["MyURLs](https://github.com/hannaohandrews/tinyapp/blob/master/docs/MyURLS.png?raw=true)
-!["urls_not_logged_in"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls(not_logged_in).png?raw=true)
-!["urls_logged_in"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls(logged-in).png?raw=true)
+["urls/new"](https://github.com/hannaohandrews/tinyapp/blob/master/docs/urls:new.png?raw=true)
+["MyURLs](https://github.com/hannaohandrews/tinyapp/blob/master/docs/MyURLS.png?raw=true)
 
 
 ## Dependencies
