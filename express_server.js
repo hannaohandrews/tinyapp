@@ -2,11 +2,9 @@
 const bodyParser = require("body-parser");
 const express = require("express");
 const app = express();
-const PORT = 8080;
+const PORT = 3000;
 const bcrypt = require('bcrypt');
 const cookieSession = require('cookie-session');
-
-//const { getUserByEmail } = require('./helpers.js');
 
 const getUserByEmail = function(email,users) {
   for (const user in users) {
@@ -83,13 +81,14 @@ app.post("/login", (req,res) => {
       if ((bcrypt.compareSync(req.body.password, users[user].password)) === true) {
         req.session.user_id = user;
         res.redirect('/urls');
+        return;
       } else {
         res.status(401).send("It's more fun to be Logged-in...<a href='/login'>Click Here</a>");
+        return;
       }
-    } else {
-      res.redirect(401,'/register');
-    }
+    } 
   }
+  res.redirect(401,'/register')
 });
 
 // LOGIN
@@ -178,10 +177,6 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-//HELLO
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 
 // SHORTURL
 app.get("/urls/:shortURL", (req, res) => {
@@ -208,21 +203,23 @@ app.get('/register', (req,res) => {
 });
 
 // USER REGISTRATION POST
+console.log(getUserByEmail('user2@example.com',users));
+
 app.post('/register', (req,res) => {
   const hashedPassword = bcrypt.hashSync(req.body["password"], 10);
 
   let user = {
     id : generateRandomString(),
     email : req.body.email,
-    password : req.body["password"]
+    password : hashedPassword
   };
 
-  if (user.email === '' || user.password === '' || getUserByEmail(user.email)) {
+  if (user.email === '' || user.password === '' || getUserByEmail(user.email,users)) {
     res.status(400).send("Not Registered dummy...<a href='/register'> Register Here</a>");
 
   } else {
     req.session.user_id = user.id;
-    users[user.id] = { id: users[user.id], email: user.email, password: hashedPassword };
+    users[user.id] = user
     res.redirect('/urls');
   }
 });
